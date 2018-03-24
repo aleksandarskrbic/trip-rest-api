@@ -1,9 +1,15 @@
 package com.trip.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Entity
 public class Trip {
@@ -15,15 +21,17 @@ public class Trip {
     private String destination;
 
     @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate startDate;
 
     @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate endDate;
 
     @Column(nullable = true)
     private String comment;
-
-    private long dayCount;
 
     public Trip() {
     }
@@ -83,11 +91,7 @@ public class Trip {
         this.comment = comment;
     }
 
-    public long getDayCount() {
-        return dayCount;
-    }
-
-    public void setDayCount(long dayCount) {
-        this.dayCount = dayCount;
+    public long calculateDayCount() {
+        return DAYS.between(this.getStartDate(), this.getEndDate());
     }
 }
