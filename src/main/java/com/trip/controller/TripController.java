@@ -1,6 +1,6 @@
 package com.trip.controller;
 
-import com.trip.error.CustomError;
+import com.trip.messages.CustomMessage;
 import com.trip.model.Trip;
 import com.trip.repository.TripRepository;
 import com.trip.service.GooglePlacesService;
@@ -48,7 +48,7 @@ public class TripController {
 
         if (!trip.isPresent()) {
             return new ResponseEntity<>(Optional.of(
-                    new CustomError("Trip with id: " + id + " does not exist!")),
+                    new CustomMessage("Trip with id: " + id + " does not exist!")),
                     HttpStatus.NOT_FOUND);
         }
 
@@ -61,12 +61,12 @@ public class TripController {
         Optional<Trip> trip = tripRepository.findById(id);
 
         if (!trip.isPresent()) {
-            return new ResponseEntity<>(Optional.of(new CustomError(
+            return new ResponseEntity<>(Optional.of(new CustomMessage(
                     "Trip with id: "  + id + " not found!")), HttpStatus.NOT_FOUND);
         }
 
         tripRepository.delete(trip.get());
-        return new ResponseEntity<>(Optional.of(new CustomError(
+        return new ResponseEntity<>(Optional.of(new CustomMessage(
                 "Deleted Trip with id: " + id + ".")), HttpStatus.NO_CONTENT);
     }
 
@@ -76,7 +76,7 @@ public class TripController {
         Optional<Trip> found = tripRepository.findById(id);
 
         if (!found.isPresent()) {
-            return new ResponseEntity<>(Optional.of(new CustomError(
+            return new ResponseEntity<>(Optional.of(new CustomMessage(
                     "Unable to update. Trip with id: "  + id + " not found!")), HttpStatus.NOT_FOUND);
         }
 
