@@ -1,15 +1,13 @@
 package com.trip.controller;
 
-import com.trip.config.Constants;
 import com.trip.model.Trip;
 import com.trip.repository.TripRepository;
+import com.trip.service.GooglePlacesService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import se.walkercrou.places.GooglePlaces;
-import se.walkercrou.places.Place;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -17,12 +15,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequestMapping("/api/trip")
 public class TripController {
 
     @Autowired
     private TripRepository tripRepository;
+
+    @Autowired
+    private GooglePlacesService googlePlacesService;
 
     @ApiOperation(value = "List all the created trips")
     @GetMapping(value = "/all")
@@ -46,12 +49,11 @@ public class TripController {
     }
 
     @ApiOperation(value = "Create new trip")
-    @PostMapping(value = "/add")
+    @PostMapping(value = "/add", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<Optional<Trip>> add(@RequestBody final Trip trip) {
-        GooglePlaces client = new GooglePlaces(Constants.API_KEY);
-        List<Place> places = client.getPlacesByQuery(trip.getDestination(), GooglePlaces.MAXIMUM_RESULTS);
+        boolean existence = googlePlacesService.checkExistence(trip.getDestination());
 
-        if (places.isEmpty()) {
+        if (!existence) {
             return new ResponseEntity<>(Optional.of(trip), HttpStatus.NOT_ACCEPTABLE);
         } else if (trip.getStartDate().isAfter(trip.getEndDate())) {
             return new ResponseEntity<>(Optional.of(trip), HttpStatus.NOT_ACCEPTABLE);
