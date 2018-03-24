@@ -6,5 +6,7 @@ REST API Implementation for Codetribe Koneh Challenge
 3. Run
 
 Application is running on port: 8080
+
 Testing done using RESTassured
+
 Swagger Documentation Available on: http://localhost:8080/swagger-ui.html
