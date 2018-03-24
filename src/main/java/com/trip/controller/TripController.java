@@ -1,9 +1,11 @@
 package com.trip.controller;
 
+import com.trip.config.Constants;
 import com.trip.messages.CustomMessage;
 import com.trip.model.Trip;
 import com.trip.repository.TripRepository;
 import com.trip.service.GooglePlacesService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,8 +21,9 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Api(description = "Trip RESTful API")
 @RestController
-@RequestMapping("/api/trip")
+@RequestMapping(Constants.BASE_URL)
 public class TripController {
 
     @Autowired
