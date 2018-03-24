@@ -1,11 +1,13 @@
 package com.trip.controller;
 
+import com.trip.error.CustomError;
 import com.trip.model.Trip;
 import com.trip.repository.TripRepository;
 import com.trip.service.GooglePlacesService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,10 +35,60 @@ public class TripController {
         List<Trip> trips = tripRepository.findAll();
 
         if (trips.isEmpty()) {
-            return new ResponseEntity<>(trips, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(trips, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Find Trip by ID")
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<Optional<Trip>> getTripById(@PathVariable final Long id) {
+        Optional<Trip> trip = tripRepository.findById(id);
+
+        if (!trip.isPresent()) {
+            return new ResponseEntity<>(Optional.of(
+                    new CustomError("Trip with id: " + id + " does not exist!")),
+                    HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(trip, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Remove Trip by ID")
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Optional<Trip>> deleteTripById(@PathVariable final Long id) {
+        Optional<Trip> trip = tripRepository.findById(id);
+
+        if (!trip.isPresent()) {
+            return new ResponseEntity<>(Optional.of(new CustomError(
+                    "Trip with id: "  + id + " not found!")), HttpStatus.NOT_FOUND);
+        }
+
+        tripRepository.delete(trip.get());
+        return new ResponseEntity<>(Optional.of(new CustomError(
+                "Deleted Trip with id: " + id + ".")), HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(value = "Update existing Trip")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Optional<Trip>> updateTripBy(@PathVariable final Long id, @RequestBody final Trip trip) {
+        Optional<Trip> found = tripRepository.findById(id);
+
+        if (!found.isPresent()) {
+            return new ResponseEntity<>(Optional.of(new CustomError(
+                    "Unable to update. Trip with id: "  + id + " not found!")), HttpStatus.NOT_FOUND);
+        }
+
+        Trip currentTrip = found.get();
+        currentTrip.setDestination(trip.getDestination());
+        currentTrip.setStartDate(trip.getStartDate());
+        currentTrip.setEndDate(trip.getEndDate());
+        currentTrip.setComment(trip.getComment());
+
+        tripRepository.saveAndFlush(currentTrip);
+        return new ResponseEntity<>(Optional.of(currentTrip), HttpStatus.OK);
+
     }
 
     @ApiOperation(value = "Find trips by destination")
@@ -45,6 +97,11 @@ public class TripController {
         destination = destination.toLowerCase();
         destination = destination.substring(0,1).toUpperCase() + destination.substring(1, destination.length());
         List<Trip> trips = tripRepository.findByDestination(destination);
+
+        if (trips.isEmpty()) {
+            return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);
+        }
+
         return new ResponseEntity<>(trips, HttpStatus.OK);
     }
 
@@ -74,7 +131,7 @@ public class TripController {
         List<Trip> trips = tripRepository.findAll();
 
         if (trips.isEmpty()) {
-            return new ResponseEntity<>(trips, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);
         }
 
         trips = trips.stream()
