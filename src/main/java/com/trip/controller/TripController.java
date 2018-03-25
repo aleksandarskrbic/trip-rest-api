@@ -1,7 +1,6 @@
 package com.trip.controller;
 
 import com.trip.config.Constants;
-import com.trip.exception.TripNotFoundException;
 import com.trip.messages.CustomMessage;
 import com.trip.model.Trip;
 import com.trip.service.GooglePlacesService;
@@ -43,7 +42,7 @@ public class TripController {
         List<Trip> trips = tripService.findAll();
 
         if (trips.isEmpty()) {
-            return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(trips, HttpStatus.OK);
@@ -107,7 +106,7 @@ public class TripController {
         List<Trip> trips = tripService.findByDestination(destination);
 
         if (trips.isEmpty()) {
-            return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(trips, HttpStatus.OK);
@@ -119,7 +118,9 @@ public class TripController {
         boolean existence = googlePlacesService.checkExistence(trip.getDestination());
 
         if (!existence) {
-            return new ResponseEntity<>(Optional.of(trip), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>(Optional.of(new CustomMessage(
+                    "Destination \'" + trip.getDestination() + "'/ does not exist!")),
+                    HttpStatus.NOT_ACCEPTABLE);
         } else if (trip.getStartDate().isAfter(trip.getEndDate())) {
             return new ResponseEntity<>(Optional.of(trip), HttpStatus.NOT_ACCEPTABLE);
         }
@@ -139,7 +140,7 @@ public class TripController {
         List<Trip> trips = tripService.findAll();
 
         if (trips.isEmpty()) {
-            return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         trips = trips.stream()
