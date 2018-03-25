@@ -9,6 +9,5 @@ import java.util.List;
 @Component
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
-
     List<Trip> findByDestination(String destination);
 }

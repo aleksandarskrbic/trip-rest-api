@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -79,7 +80,8 @@ public class TripController {
 
     @ApiOperation(value = "Update existing Trip")
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Optional<Trip>> updateTripBy(@PathVariable final Long id, @RequestBody final Trip trip) {
+    public ResponseEntity<Optional<Trip>> updateTripBy(@PathVariable final Long id,
+                                                       @Valid @RequestBody final Trip trip) {
         Optional<Trip> found = tripService.findById(id);
 
         if (!found.isPresent()) {
@@ -99,11 +101,20 @@ public class TripController {
     }
 
     @ApiOperation(value = "Find trips by destination")
-    @GetMapping(value = "/find/{destination}")
-    public ResponseEntity<List<Trip>> findByDestination(@PathVariable String destination) {
-        destination = destinationFormatter(destination);
+    @GetMapping(value = {"/find/{destination}", "/find/{destOne}/{destTwo}"})
+    public ResponseEntity<List<Trip>> findByDestination(@PathVariable Optional<String> destination,
+                                                        @PathVariable Optional<String> destOne,
+                                                        @PathVariable Optional<String> destTwo) {
+        String search = "";
 
-        List<Trip> trips = tripService.findByDestination(destination);
+        if (destination.isPresent()) {
+            search = destinationFormatter(destination.get());
+        } else if(destOne.isPresent() && destTwo.isPresent()) {
+            search = destOne.get() + " " + destTwo.get();
+            search = destinationFormatter(search);
+        }
+
+        List<Trip> trips = tripService.findByDestination(search);
 
         if (trips.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -114,7 +125,7 @@ public class TripController {
 
     @ApiOperation(value = "Create new trip")
     @PostMapping(value = "/add", consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<Optional<Trip>> add(@RequestBody final Trip trip) {
+    public ResponseEntity<Optional<Trip>> add(@Valid @RequestBody final Trip trip) {
         boolean existence = googlePlacesService.checkExistence(trip.getDestination());
 
         if (!existence) {
@@ -122,11 +133,16 @@ public class TripController {
                     "Destination \'" + trip.getDestination() + "'/ does not exist!")),
                     HttpStatus.NOT_ACCEPTABLE);
         } else if (trip.getStartDate().isAfter(trip.getEndDate())) {
-            return new ResponseEntity<>(Optional.of(trip), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>(Optional.of(new CustomMessage(
+                    "Not valid dates!"))
+                    , HttpStatus.NOT_ACCEPTABLE);
         }
 
-        String name = trip.getDestination().toLowerCase();
-        name = name.substring(0,1).toUpperCase() + name.substring(1, name.length());
+        //String name = trip.getDestination().toLowerCase();
+        //name = name.substring(0,1).toUpperCase() + name.substring(1, name.length());
+
+        //String name = trip.getDestination();
+        String name = destinationFormatter(trip.getDestination());
 
         trip.setDestination(name);
         tripService.save(trip);
