@@ -3,7 +3,7 @@ package com.trip.controller;
 import com.trip.config.Constants;
 import com.trip.messages.CustomMessage;
 import com.trip.model.Trip;
-import com.trip.repository.TripRepository;
+import com.trip.repository.TripService;
 import com.trip.service.GooglePlacesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,16 +26,20 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(Constants.BASE_URL)
 public class TripController {
 
-    @Autowired
-    private TripRepository tripRepository;
+    private final TripService tripService;
+
+    private final GooglePlacesService googlePlacesService;
 
     @Autowired
-    private GooglePlacesService googlePlacesService;
+    public TripController(TripService tripService, GooglePlacesService googlePlacesService) {
+        this.tripService = tripService;
+        this.googlePlacesService = googlePlacesService;
+    }
 
     @ApiOperation(value = "List all the created trips")
     @GetMapping(value = "/all")
     public ResponseEntity<List<Trip>> findAllTrips() {
-        List<Trip> trips = tripRepository.findAll();
+        List<Trip> trips = tripService.findAll();
 
         if (trips.isEmpty()) {
             return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);
@@ -47,7 +51,7 @@ public class TripController {
     @ApiOperation(value = "Find Trip by ID")
     @GetMapping(value = "/{id}")
     public ResponseEntity<Optional<Trip>> getTripById(@PathVariable final Long id) {
-        Optional<Trip> trip = tripRepository.findById(id);
+        Optional<Trip> trip = tripService.findById(id);
 
         if (!trip.isPresent()) {
             return new ResponseEntity<>(Optional.of(
@@ -61,14 +65,14 @@ public class TripController {
     @ApiOperation(value = "Remove Trip by ID")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Optional<Trip>> deleteTripById(@PathVariable final Long id) {
-        Optional<Trip> trip = tripRepository.findById(id);
+        Optional<Trip> trip = tripService.findById(id);
 
         if (!trip.isPresent()) {
             return new ResponseEntity<>(Optional.of(new CustomMessage(
                     "Trip with id: "  + id + " not found!")), HttpStatus.NOT_FOUND);
         }
 
-        tripRepository.delete(trip.get());
+        tripService.delete(trip.get());
         return new ResponseEntity<>(Optional.of(new CustomMessage(
                 "Deleted Trip with id: " + id + ".")), HttpStatus.NO_CONTENT);
     }
@@ -76,7 +80,7 @@ public class TripController {
     @ApiOperation(value = "Update existing Trip")
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Optional<Trip>> updateTripBy(@PathVariable final Long id, @RequestBody final Trip trip) {
-        Optional<Trip> found = tripRepository.findById(id);
+        Optional<Trip> found = tripService.findById(id);
 
         if (!found.isPresent()) {
             return new ResponseEntity<>(Optional.of(new CustomMessage(
@@ -89,7 +93,7 @@ public class TripController {
         currentTrip.setEndDate(trip.getEndDate());
         currentTrip.setComment(trip.getComment());
 
-        tripRepository.saveAndFlush(currentTrip);
+        tripService.saveAndFlush(currentTrip);
         return new ResponseEntity<>(Optional.of(currentTrip), HttpStatus.OK);
 
     }
@@ -99,7 +103,7 @@ public class TripController {
     public ResponseEntity<List<Trip>> findByDestination(@PathVariable String destination) {
         destination = destination.toLowerCase();
         destination = destination.substring(0,1).toUpperCase() + destination.substring(1, destination.length());
-        List<Trip> trips = tripRepository.findByDestination(destination);
+        List<Trip> trips = tripService.findByDestination(destination);
 
         if (trips.isEmpty()) {
             return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);
@@ -123,15 +127,15 @@ public class TripController {
         name = name.substring(0,1).toUpperCase() + name.substring(1, name.length());
 
         trip.setDestination(name);
-        tripRepository.save(trip);
+        tripService.save(trip);
 
-        return new ResponseEntity<>(tripRepository.findById(trip.getId()), HttpStatus.CREATED);
+        return new ResponseEntity<>(tripService.findById(trip.getId()), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "List all trips ordered by day count (inc) until StartDate (showing only the future trips)")
     @GetMapping(value = "/list")
     public ResponseEntity<List<Trip>> list() {
-        List<Trip> trips = tripRepository.findAll();
+        List<Trip> trips = tripService.findAll();
 
         if (trips.isEmpty()) {
             return new ResponseEntity<>(trips, HttpStatus.NO_CONTENT);

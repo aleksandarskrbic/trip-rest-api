@@ -28,7 +28,7 @@ public class SwaggerConfig {
     private ApiInfo info() {
 
         ApiInfo apiInfo = new ApiInfo(
-                "Partial REST API Assignment for Codetribe",
+                "REST API Assignment for Codetribe",
                 "Implementation of basic Spring Boot Architecture",
                 "1.0",
                 "Terms of Service",
