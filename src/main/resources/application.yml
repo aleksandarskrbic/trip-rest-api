@@ -1,0 +1,31 @@
+spring.profiles: development
+
+spring:
+  jpa:
+    hibernate:
+      # possible values: validate | update | create | create-drop
+      ddl-auto: create-drop
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/trip_db?useSSL=false
+    username: codetribe
+    password: codetribe
+    driver-class-name: com.mysql.jdbc.Driver
+
+---
+
+spring.profiles: test
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2console
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect

@@ -12,9 +12,11 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import sun.misc.ASCIICaseInsensitiveComparator;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@ActiveProfiles("test")
 public class TripControllerTest {
 
     @Test

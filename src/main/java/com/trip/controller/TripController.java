@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import se.walkercrou.places.exception.NoResultsFoundException;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -126,13 +127,17 @@ public class TripController {
     @ApiOperation(value = "Create new trip")
     @PostMapping(value = "/add", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<Optional<Trip>> add(@Valid @RequestBody final Trip trip) {
-        boolean existence = googlePlacesService.checkExistence(trip.getDestination());
+        boolean existence;
 
-        if (!existence) {
+        try {
+            existence = googlePlacesService.checkExistence(trip.getDestination());
+        } catch (NoResultsFoundException ex) {
             return new ResponseEntity<>(Optional.of(new CustomMessage(
                     "Destination \'" + trip.getDestination() + "'/ does not exist!")),
                     HttpStatus.NOT_ACCEPTABLE);
-        } else if (trip.getStartDate().isAfter(trip.getEndDate())) {
+        }
+
+        if (trip.getStartDate().isAfter(trip.getEndDate())) {
             return new ResponseEntity<>(Optional.of(new CustomMessage(
                     "Not valid dates!"))
                     , HttpStatus.NOT_ACCEPTABLE);
