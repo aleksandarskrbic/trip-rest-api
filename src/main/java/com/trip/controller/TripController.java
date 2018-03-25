@@ -101,8 +101,8 @@ public class TripController {
     @ApiOperation(value = "Find trips by destination")
     @GetMapping(value = "/find/{destination}")
     public ResponseEntity<List<Trip>> findByDestination(@PathVariable String destination) {
-        destination = destination.toLowerCase();
-        destination = destination.substring(0,1).toUpperCase() + destination.substring(1, destination.length());
+        destination = destinationFormatter(destination);
+
         List<Trip> trips = tripService.findByDestination(destination);
 
         if (trips.isEmpty()) {
@@ -149,5 +149,32 @@ public class TripController {
                     .collect(Collectors.toList());
 
         return new ResponseEntity<>(trips, HttpStatus.OK);
+    }
+
+    private String destinationFormatter(String destination) {
+        if (destination.contains("_")) {
+            String[] split = destination.split("_");
+            split[0] = split[0].toLowerCase();
+            split[0] = split[0].substring(0, 1).toUpperCase() + split[0].substring(1, split[0].length());
+
+            split[1] = split[1].toLowerCase();
+            split[1] = split[1].substring(0, 1).toUpperCase() + split[1].substring(1, split[1].length());
+
+            destination = split[0] + " " + split[1];
+        } else if (destination.contains(" ")){
+            String[] split = destination.split(" ");
+            split[0] = split[0].toLowerCase();
+            split[0] = split[0].substring(0, 1).toUpperCase() + split[0].substring(1, split[0].length());
+
+            split[1] = split[1].toLowerCase();
+            split[1] = split[1].substring(0, 1).toUpperCase() + split[1].substring(1, split[1].length());
+
+            destination = split[0] + " " + split[1];
+        } else {
+            destination = destination.toLowerCase();
+            destination = destination.substring(0,1).toUpperCase() + destination.substring(1, destination.length());
+        }
+
+        return destination;
     }
 }
