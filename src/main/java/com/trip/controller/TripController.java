@@ -1,10 +1,11 @@
 package com.trip.controller;
 
 import com.trip.config.Constants;
+import com.trip.exception.TripNotFoundException;
 import com.trip.messages.CustomMessage;
 import com.trip.model.Trip;
-import com.trip.repository.TripService;
 import com.trip.service.GooglePlacesService;
+import com.trip.service.TripService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +58,8 @@ public class TripController {
             return new ResponseEntity<>(Optional.of(
                     new CustomMessage("Trip with id: " + id + " does not exist!")),
                     HttpStatus.NOT_FOUND);
-        }
 
+        }
         return new ResponseEntity<>(trip, HttpStatus.OK);
     }
 
@@ -93,7 +94,7 @@ public class TripController {
         currentTrip.setEndDate(trip.getEndDate());
         currentTrip.setComment(trip.getComment());
 
-        tripService.saveAndFlush(currentTrip);
+        tripService.save(currentTrip);
         return new ResponseEntity<>(Optional.of(currentTrip), HttpStatus.OK);
 
     }

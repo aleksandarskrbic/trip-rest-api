@@ -1,6 +1,5 @@
 package com.trip.service;
 
-
 import com.trip.model.Trip;
 
 import java.util.List;
@@ -15,4 +14,6 @@ public interface TripService {
     void delete(Trip trip);
 
     void save(Trip trip);
+
+    List<Trip> findByDestination(String destination);
 }
