@@ -138,10 +138,6 @@ public class TripController {
                     , HttpStatus.NOT_ACCEPTABLE);
         }
 
-        //String name = trip.getDestination().toLowerCase();
-        //name = name.substring(0,1).toUpperCase() + name.substring(1, name.length());
-
-        //String name = trip.getDestination();
         String name = destinationFormatter(trip.getDestination());
 
         trip.setDestination(name);
@@ -168,6 +164,8 @@ public class TripController {
     }
 
     private String destinationFormatter(String destination) {
+        destination = destination.trim();
+
         if (destination.contains("_")) {
             String[] split = destination.split("_");
             split[0] = split[0].toLowerCase();
