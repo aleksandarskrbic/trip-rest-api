@@ -10,7 +10,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
-import javax.print.attribute.standard.MediaSize;
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 

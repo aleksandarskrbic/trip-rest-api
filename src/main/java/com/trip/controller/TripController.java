@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import se.walkercrou.places.exception.NoResultsFoundException;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
