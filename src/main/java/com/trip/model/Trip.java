@@ -50,24 +50,6 @@ public class Trip {
     @Column(name = "COMMENT")
     private String comment;
 
-    public Trip() {
-    }
-
-    public Trip(Long id, String destination, LocalDate startDate, LocalDate endDate, String comment) {
-        this.id = id;
-        this.destination = destination;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.comment = comment;
-    }
-
-    public Trip(Long id, String destination, LocalDate startDate, LocalDate endDate) {
-        this.id = id;
-        this.destination = destination;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
     public long calculateDayCount() {
         return DAYS.between(this.getStartDate(), this.getEndDate());
     }

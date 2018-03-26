@@ -154,16 +154,11 @@ public class TripController {
     @ApiOperation(value = "List all trips ordered by day count (inc) until StartDate (showing only the future trips)")
     @GetMapping(value = "/list")
     public ResponseEntity<List<Trip>> list() {
-        List<Trip> trips = tripService.findAll();
+        List<Trip> trips = tripService.list();
 
         if (trips.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
-        trips = trips.stream()
-                    .sorted(Comparator.comparing(Trip::calculateDayCount))
-                    .filter(t -> t.getStartDate().isAfter(LocalDate.now()))
-                    .collect(Collectors.toList());
 
         return new ResponseEntity<>(trips, HttpStatus.OK);
     }

@@ -16,4 +16,6 @@ public interface TripService {
     void save(Trip trip);
 
     List<Trip> findByDestination(String destination);
+
+    List<Trip> list();
 }
